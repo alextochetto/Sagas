@@ -26,16 +26,14 @@ namespace WebOrchestrator.Controllers
             HttpResponseMessage httpResponseMessage = await httpClient.GetAsync("/api/Cube/Publish");
             if (httpResponseMessage.IsSuccessStatusCode)
             {
-
+                httpClient = _httpClientFactory.CreateClient("Microservice");
+                httpResponseMessage = await httpClient.GetAsync("/api/Notification/Notify");
+                if (!httpResponseMessage.IsSuccessStatusCode)
+                {
+                    httpClient = _httpClientFactory.CreateClient("Legacy");
+                    httpResponseMessage = await httpClient.GetAsync("/api/Cube/UndoPublish");
+                }
             }
-
-            httpClient = _httpClientFactory.CreateClient("Microservice");
-            httpResponseMessage = await httpClient.GetAsync("/api/Notification/Notify");
-            if (httpResponseMessage.IsSuccessStatusCode)
-            {
-
-            }
-
             return Ok();
         }
     }
